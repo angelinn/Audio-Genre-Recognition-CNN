@@ -2,3 +2,6 @@
 __pycache__
 fma_metadata
 *.csv
+fma_small
+.vscode
+*.png
