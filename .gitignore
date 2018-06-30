@@ -5,3 +5,5 @@ fma_metadata
 fma_small
 .vscode
 *.png
+slices
+spectrograms
