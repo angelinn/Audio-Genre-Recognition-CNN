@@ -4,7 +4,7 @@ import os
 from PIL import Image
 
 SOX_PATH = 'D:\\Program Files (x86)\\sox-14-4-2\\sox'
-AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\fma_small\\000\\'
+AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\fma_small\\'
 SPECTROGRAMS_PATH = 'spectrograms\\'
 SLICES_PATH = 'slices\\'
 
@@ -25,8 +25,9 @@ def getGenre(filename):
     else:
         return audiofile.tag.genre.name
 
+
+genresID = dict()
 def create_all_spectrograms(path):
-    genresID = dict()
     files = os.listdir(path)
     files = [file for file in files if file.endswith(".mp3")]
     nbFiles = len(files)
@@ -39,13 +40,13 @@ def create_all_spectrograms(path):
     #Rename files according to genre
     for index,filename in enumerate(files):
         print("Creating spectrogram for file {}/{}...".format(index+1,nbFiles))
-        fileGenre = getGenre(AUDIO_DIR + filename)
+        fileGenre = getGenre(path + filename)
 
         genresID[fileGenre] = genresID[fileGenre] + 1 if fileGenre in genresID else 1
         fileID = genresID[fileGenre]
 
         newFilename = fileGenre +"_"+str(fileID)
-        create_spectrogram(AUDIO_DIR + filename,newFilename)
+        create_spectrogram(path + filename, newFilename)
 
 def create_slices():
 	for filename in os.listdir(SPECTROGRAMS_PATH):
@@ -80,5 +81,10 @@ def slice_spectrogram(filename, desiredSize):
 		imgTmp = img.crop((startPixel, 1, startPixel + desiredSize, desiredSize + 1))
 		imgTmp.save(SLICES_PATH + "{}/{}_{}.png".format(genre,filename[:-4],i))
 
-# create_all_spectrograms(AUDIO_DIR)
+directories = next(os.walk(AUDIO_DIR))[1]
+print(directories)
+for dir_name in directories:
+    print(AUDIO_DIR + '\\' + dir_name)
+    create_all_spectrograms(AUDIO_DIR + '\\' + dir_name + '\\')
+
 create_slices()
