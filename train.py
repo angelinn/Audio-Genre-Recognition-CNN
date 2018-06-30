@@ -12,9 +12,8 @@ from tflearn.layers.estimator import regression
 
 print('Done')
 
-def create_model(imageSize, classesLength):
-    print('in')
-    convnet = input_data(shape=[None, imageSize, imageSize, 1])
+def create_model(image_size, classes_length):
+    convnet = input_data(shape=[None, image_size, image_size, 1])
 
     convnet = conv_2d(convnet, 64, 2, activation='elu', weights_init='Xavier')
     convnet = max_pool_2d(convnet, 2)
@@ -31,7 +30,7 @@ def create_model(imageSize, classesLength):
     convnet = fully_connected(convnet, 1024, activation='elu')
     convnet = dropout(convnet, 0.5)
 
-    convnet = fully_connected(convnet, classesLength, activation='softmax')
+    convnet = fully_connected(convnet, classes_length, activation='softmax')
     convnet = regression(convnet, optimizer='rmsprop', loss='categorical_crossentropy')
 
     model = tflearn.DNN(convnet)
