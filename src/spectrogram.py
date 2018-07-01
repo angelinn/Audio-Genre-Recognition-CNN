@@ -5,11 +5,25 @@ from PIL import Image
 
 SOX_PATH = 'D:\\Program Files (x86)\\sox-14-4-2\\sox'
 AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\fma_small\\'
+NEW_AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\mono\\'
 SPECTROGRAMS_PATH = 'spectrograms\\'
 SLICES_PATH = 'slices\\'
+#GENRES = ['Electronic', 'Folk', 'Hip Hop', 'Jazz', 'Pop', 'Punk', 'Rock']
+GENRES = ['Hip-Hop']
 
-def create_spectrogram(filename, new_file_name):
-    command = "\"{}\" \"{}\" -n spectrogram -Y 200 -X {} -m -r -o \"{}.png\"".format(SOX_PATH, filename, 50, SPECTROGRAMS_PATH + '\\' + new_file_name)
+def create_spectrogram(path, filename, new_path, new_file_name):
+    if isMono(path + filename):    
+        command = "xcopy /y \"{}{}\" \"{}{}\"".format(path, filename, new_path, filename)
+    else:
+        command = "\"{}\" \"{}{}\" \"{}{}\" remix 1,2".format(SOX_PATH, path, filename, new_path, filename)
+    
+    pipe = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=False, cwd='D:\\Repositories\\AudioClassification\\')
+    output, errors = pipe.communicate()
+    if errors:
+        print(errors)
+    
+
+    command = "\"{}\" \"{}{}\" -n spectrogram -Y 200 -X {} -m -r -o \"{}.png\"".format(SOX_PATH, new_path, filename, 50, SPECTROGRAMS_PATH + '\\' + new_file_name)
     print(command)
 
     pipe = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=False, cwd='D:\\Repositories\\AudioClassification\\')
@@ -36,28 +50,36 @@ def create_all_spectrograms(path):
     if not os.path.exists(os.path.dirname(SPECTROGRAMS_PATH)):
         print("Creating {}...".format(SPECTROGRAMS_PATH))
         os.makedirs(os.path.dirname(SPECTROGRAMS_PATH))
+    
+    #Create path if not existing
+    if not os.path.exists(os.path.dirname(NEW_AUDIO_DIR)):
+        print("Creating {}...".format(NEW_AUDIO_DIR))
+        os.makedirs(os.path.dirname(NEW_AUDIO_DIR))
 
     #Rename files according to genre
     for index,filename in enumerate(files):
         print("Creating spectrogram for file {}/{}...".format(index+1,nbFiles))
         fileGenre = getGenre(path + filename)
+        if fileGenre not in GENRES:
+            print("Genre is {}. Skipping...".format(fileGenre))
+            continue
 
         genresID[fileGenre] = genresID[fileGenre] + 1 if fileGenre in genresID else 1
         fileID = genresID[fileGenre]
 
         newFilename = fileGenre +"_"+str(fileID)
-        create_spectrogram(path + filename, newFilename)
+        create_spectrogram(path, filename, NEW_AUDIO_DIR, newFilename)
 
 def create_slices():
 	for filename in os.listdir(SPECTROGRAMS_PATH):
 		if filename.endswith(".png"):
-			slice_spectrogram(filename,128)
+			slice_spectrogram(SPECTROGRAMS_PATH, filename, 128, SLICES_PATH)
 
-def slice_spectrogram(filename, desiredSize):
+def slice_spectrogram(path, filename, desiredSize, slices_path):
 	genre = filename.split("_")[0] 	#Ex. Dubstep_19.png
 
 	# Load the full spectrogram
-	img = Image.open(SPECTROGRAMS_PATH+filename)
+	img = Image.open(path+filename)
 
 	#Compute approximate number of 128x128 samples
 	width, height = img.size
@@ -65,7 +87,7 @@ def slice_spectrogram(filename, desiredSize):
 	width - desiredSize
 
 	#Create path if not existing
-	slicePath = SLICES_PATH+"{}/".format(genre);
+	slicePath = slices_path+"{}/".format(genre);
 	if not os.path.exists(os.path.dirname(slicePath)):
 		try:
 			os.makedirs(os.path.dirname(slicePath))
@@ -79,12 +101,17 @@ def slice_spectrogram(filename, desiredSize):
 		#Extract and save 128x128 sample
 		startPixel = i*desiredSize
 		imgTmp = img.crop((startPixel, 1, startPixel + desiredSize, desiredSize + 1))
-		imgTmp.save(SLICES_PATH + "{}/{}_{}.png".format(genre,filename[:-4],i))
+		imgTmp.save(slices_path + "{}/{}_{}.png".format(genre,filename[:-4],i))
 
-directories = next(os.walk(AUDIO_DIR))[1]
-print(directories)
-for dir_name in directories:
-    print(AUDIO_DIR + '\\' + dir_name)
-    create_all_spectrograms(AUDIO_DIR + '\\' + dir_name + '\\')
+def isMono(filename):
+	audiofile = eyed3.load(filename)
+	return audiofile.info.mode == 'Mono'
 
-create_slices()
+if __name__ == '__main__':
+    directories = next(os.walk(AUDIO_DIR))[1]
+    print(directories)
+    for dir_name in directories:
+        print(AUDIO_DIR + '\\' + dir_name)
+        create_all_spectrograms(AUDIO_DIR + '\\' + dir_name + '\\')
+
+    create_slices()
