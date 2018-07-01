@@ -5,8 +5,10 @@ from PIL import Image
 import pickle
 import errno
 
-SPECTROGRAM_SLICES_PATH = 'slices'
-DATASET_PATH = 'datasets'
+SCRIPTS_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
+
+SPECTROGRAM_SLICES_PATH = os.path.join(SCRIPTS_DIRECTORY, '../slices')
+DATASET_PATH = os.path.join(SCRIPTS_DIRECTORY, '../datasets')
 
 def get_dataset_name(nbPerGenre, slice_size):
     name = "{}".format(nbPerGenre)

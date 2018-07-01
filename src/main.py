@@ -1,5 +1,6 @@
 from train import create_model
 from tools import SPECTROGRAM_SLICES_PATH
+from tools import SCRIPTS_DIRECTORY
 from tools import get_dataset
 import os
 import random
@@ -12,7 +13,7 @@ args = parser.parse_args()
 
 files_per_genre = 1000
 SLICE_SIZE = 128
-MODEL_FILE_NAME = 'musicDNN.tflearn'
+MODEL_FILE_NAME = os.path.join(SCRIPTS_DIRECTORY, '../model/musicDNN.tflearn')
 validation_ratio = 0.3
 test_ratio = 0.1
 
