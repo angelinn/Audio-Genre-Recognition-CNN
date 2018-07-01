@@ -5,7 +5,7 @@ from PIL import Image
 import pickle
 import errno
 
-SPECTROGRAM_SLICES_PATH = 'D:\\Repositories\\AudioClassification\\slices'
+SPECTROGRAM_SLICES_PATH = 'slices'
 DATASET_PATH = 'datasets'
 
 def get_dataset_name(nbPerGenre, slice_size):
@@ -14,13 +14,13 @@ def get_dataset_name(nbPerGenre, slice_size):
     return name
 
 def get_dataset(files_per_genre, genres, slice_size, validation_ratio, test_ratio, mode):
-    print("[+] Dataset name: {}".format(get_dataset_name(files_per_genre,slice_size)))
+    print("Dataset name: {}".format(get_dataset_name(files_per_genre,slice_size)))
     test_file = "{}\\train_X_{}.p".format(DATASET_PATH, get_dataset_name(files_per_genre, slice_size))
     if not os.path.isfile(test_file):
-        print("[+] Creating dataset with {} slices of size {} per genre...".format(files_per_genre,slice_size))
+        print("Creating dataset with {} slices of size {} per genre...".format(files_per_genre,slice_size))
         create_dataset_from_slices(files_per_genre, genres, slice_size, validation_ratio, test_ratio) 
     else:
-        print("[+] Using existing dataset")
+        print("Using existing dataset")
 
     return load_dataset(files_per_genre, genres, slice_size, mode)
 
@@ -59,7 +59,7 @@ def create_dataset_from_slices(files_per_genre, genres, slice_size, validation_r
     validation_y = np.array(y[trainNb:trainNb+validationNb])
     test_X = np.array(X[-testNb:]).reshape([-1, slice_size, slice_size, 1])
     test_y = np.array(y[-testNb:])
-    print("    Dataset created! ✅")
+    print("Dataset created.")
         
     #Save
     save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, files_per_genre, genres, slice_size)
@@ -70,19 +70,19 @@ def load_dataset(files_per_genre, genres, slice_size, mode):
     #Load existing
     datasetName = get_dataset_name(files_per_genre, slice_size)
     if mode == "train":
-        print("[+] Loading training and validation datasets... ")
+        print("Loading training and validation datasets... ")
         train_X = pickle.load(open("{}\\train_X_{}.p".format(DATASET_PATH,datasetName), "rb" ))
         train_y = pickle.load(open("{}\\train_y_{}.p".format(DATASET_PATH,datasetName), "rb" ))
         validation_X = pickle.load(open("{}\\validation_X_{}.p".format(DATASET_PATH,datasetName), "rb" ))
         validation_y = pickle.load(open("{}\\validation_y_{}.p".format(DATASET_PATH,datasetName), "rb" ))
-        print("    Training and validation datasets loaded! ✅")
+        print("Training and validation datasets loaded.")
         return train_X, train_y, validation_X, validation_y
 
     else:
-        print("[+] Loading testing dataset... ")
+        print("Loading testing dataset... ")
         test_X = pickle.load(open("{}\\test_X_{}.p".format(DATASET_PATH,datasetName), "rb" ))
         test_y = pickle.load(open("{}\\test_y_{}.p".format(DATASET_PATH,datasetName), "rb" ))
-        print("    Testing dataset loaded! ✅")
+        print("Testing dataset loaded.")
         return test_X, test_y
 
 #Saves dataset
@@ -96,7 +96,7 @@ def save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, f
                 raise
 
     #save_dataset
-    print("[+] Saving dataset... ")
+    print("Saving dataset... ")
     datasetName = get_dataset_name(files_per_genre, slice_size)
     pickle.dump(train_X, open("{}\\train_X_{}.p".format(DATASET_PATH,datasetName), "wb" ))
     pickle.dump(train_y, open("{}\\train_y_{}.p".format(DATASET_PATH,datasetName), "wb" ))
@@ -104,7 +104,7 @@ def save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, f
     pickle.dump(validation_y, open("{}\\validation_y_{}.p".format(DATASET_PATH,datasetName), "wb" ))
     pickle.dump(test_X, open("{}\\test_X_{}.p".format(DATASET_PATH,datasetName), "wb" ))
     pickle.dump(test_y, open("{}\\test_y_{}.p".format(DATASET_PATH,datasetName), "wb" ))
-    print("    Dataset saved! ✅💾")
+    print("Dataset saved.")
 
 #Returns numpy image at size image_size*image_size
 def get_processed_data(img, image_size):
