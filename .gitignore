@@ -10,3 +10,4 @@ spectrograms
 datasets
 checkpoint
 *.tflearn.*
+*.mp3
