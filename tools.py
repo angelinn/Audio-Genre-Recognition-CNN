@@ -15,7 +15,8 @@ def get_dataset_name(nbPerGenre, slice_size):
 
 def get_dataset(files_per_genre, genres, slice_size, validation_ratio, test_ratio, mode):
     print("[+] Dataset name: {}".format(get_dataset_name(files_per_genre,slice_size)))
-    if not os.path.isfile("{}\\{}\{}.p".format(DATASET_PATH, "train_X_", get_dataset_name(files_per_genre, slice_size))):
+    test_file = "{}\\{}\{}.p".format(DATASET_PATH, "train_X_", get_dataset_name(files_per_genre, slice_size))
+    if not os.path.isfile(test_file):
         print("[+] Creating dataset with {} slices of size {} per genre...".format(files_per_genre,slice_size))
         create_dataset_from_slices(files_per_genre, genres, slice_size, validation_ratio, test_ratio) 
     else:
