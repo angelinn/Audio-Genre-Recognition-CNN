@@ -35,7 +35,7 @@ if "train" in args.mode:
     run_id = "MusicGenres - "+str(128)+" "+''.join(random.SystemRandom().choice(string.ascii_uppercase) for _ in range(10))
 
     print('Training model...')
-    model.fit(train_X, train_y, n_epoch=20, batch_size=128, shuffle=True, validation_set=(validation_X, validation_y), snapshot_step=100, show_metric=True, run_id=run_id)
+    model.fit(train_X, train_y, n_epoch=20, batch_size=40, shuffle=True, validation_set=(validation_X, validation_y), snapshot_step=100, show_metric=True, run_id=run_id)
     print("Model trained.")
 
     print("Saving weights...")
