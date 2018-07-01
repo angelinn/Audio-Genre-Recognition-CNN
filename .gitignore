@@ -8,3 +8,5 @@ fma_small
 slices
 spectrograms
 datasets
+checkpoint
+*.tflearn.*
