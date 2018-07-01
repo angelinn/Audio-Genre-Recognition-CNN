@@ -15,7 +15,7 @@ def get_dataset_name(nbPerGenre, slice_size):
 
 def get_dataset(files_per_genre, genres, slice_size, validation_ratio, test_ratio, mode):
     print("[+] Dataset name: {}".format(get_dataset_name(files_per_genre,slice_size)))
-    test_file = "{}\\{}\{}.p".format(DATASET_PATH, "train_X_", get_dataset_name(files_per_genre, slice_size))
+    test_file = "{}\\train_X_{}.p".format(DATASET_PATH, get_dataset_name(files_per_genre, slice_size))
     if not os.path.isfile(test_file):
         print("[+] Creating dataset with {} slices of size {} per genre...".format(files_per_genre,slice_size))
         create_dataset_from_slices(files_per_genre, genres, slice_size, validation_ratio, test_ratio) 
@@ -65,7 +65,7 @@ def create_dataset_from_slices(files_per_genre, genres, slice_size, validation_r
     save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, files_per_genre, genres, slice_size)
 
     return train_X, train_y, validation_X, validation_y, test_X, test_y
-    
+
 def load_dataset(files_per_genre, genres, slice_size, mode):
     #Load existing
     datasetName = get_dataset_name(files_per_genre, slice_size)
@@ -80,8 +80,8 @@ def load_dataset(files_per_genre, genres, slice_size, mode):
 
     else:
         print("[+] Loading testing dataset... ")
-        test_X = pickle.load(open("{}test_X_{}.p".format(DATASET_PATH,datasetName), "rb" ))
-        test_y = pickle.load(open("{}test_y_{}.p".format(DATASET_PATH,datasetName), "rb" ))
+        test_X = pickle.load(open("{}\\test_X_{}.p".format(DATASET_PATH,datasetName), "rb" ))
+        test_y = pickle.load(open("{}\\test_y_{}.p".format(DATASET_PATH,datasetName), "rb" ))
         print("    Testing dataset loaded! ✅")
         return test_X, test_y
 
