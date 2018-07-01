@@ -10,10 +10,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument("mode", help="Trains or tests the CNN", nargs='+', choices=["train","test","slice"])
 args = parser.parse_args()
 
-filesPerGenre = 1000
+files_per_genre = 1000
 SLICE_SIZE = 128
+MODEL_FILE_NAME = 'musicDNN.tflearn'
 validation_ratio = 0.3
-test_ratio = 0.1  
+test_ratio = 0.1
 
 print("Spectrogram path is: {}".format(SPECTROGRAM_SLICES_PATH))
 print("Slice size is: {}".format(SLICE_SIZE))
@@ -29,16 +30,25 @@ model = create_model(SLICE_SIZE, genres_length)
 print('Model created')
 
 if "train" in args.mode:
-    train_X, train_y, validation_X, validation_y = get_dataset(filesPerGenre, genres, SLICE_SIZE, validation_ratio, test_ratio, mode="train")
+    train_X, train_y, validation_X, validation_y = get_dataset(files_per_genre, genres, SLICE_SIZE, validation_ratio, test_ratio, mode="train")
     run_id = "MusicGenres - "+str(128)+" "+''.join(random.SystemRandom().choice(string.ascii_uppercase) for _ in range(10))
 
-    print('[+] Training model...')
+    print('Training model...')
     model.fit(train_X, train_y, n_epoch=20, batch_size=128, shuffle=True, validation_set=(validation_X, validation_y), snapshot_step=100, show_metric=True, run_id=run_id)
-    print("    Model trained! ✅")
+    print("Model trained.")
 
-    print("[+] Saving the weights...")
-    model.save('musicDNN.tflearn')
-    print("[+] Weights saved! ✅💾")
+    print("Saving weights...")
+    model.save(MODEL_FILE_NAME)
+    print("Weights saved successfully.")
 
 if "test" in args.mode:
-    print('train')
+    test_X, test_y = get_dataset(files_per_genre, genres, SLICE_SIZE, validation_ratio, test_ratio, mode="test")
+
+    #Load weights
+    print("Loading weights...")
+    model.load(MODEL_FILE_NAME)
+    print("Weights loaded successfully.")
+
+    print('Evaluating accuracy...')
+    testAccuracy = model.evaluate(test_X, test_y)[0]
+    print("Test accuracy: {} ".format(testAccuracy))
