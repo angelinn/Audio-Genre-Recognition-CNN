@@ -3,7 +3,7 @@ import os
 import sys
 import spectrogram as sp
 
-#from train import create_model
+from train import create_model
 from tools import convert_slices_to_array
 from spectrogram import SPECTROGRAMS_PATH
 
@@ -39,7 +39,9 @@ def predict_genre(path):
     sp.create_spectrogram(folder_name, file_name, script_path + 'mono\\', file_name)
     sp.slice_spectrogram(SPECTROGRAMS_PATH, file_name + '.png', SLICE_SIZE, script_path + 'slices\\', 'slice')
     x = convert_slices_to_array(script_path + 'slices', SLICE_SIZE)
-    
+
+    model = create_model(128, 7)
+    prediction = model.predict(x)
     print('Determining genre...')
 
 if __name__ == '__main__':
