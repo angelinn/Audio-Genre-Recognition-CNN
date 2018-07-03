@@ -4,12 +4,11 @@ import os
 from PIL import Image
 
 SOX_PATH = 'D:\\Program Files (x86)\\sox-14-4-2\\sox'
-AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\fma_small\\'
+AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\fma_medium\\'
 NEW_AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\mono\\'
 SPECTROGRAMS_PATH = 'spectrograms\\'
 SLICES_PATH = 'slices\\'
-#GENRES = ['Electronic', 'Folk', 'Hip Hop', 'Jazz', 'Pop', 'Punk', 'Rock']
-GENRES = ['Hip-Hop']
+GENRES = ['Electronic', 'Folk', 'Hip-Hop', 'Jazz', 'Pop', 'Punk', 'Rock']
 
 def create_spectrogram(path, filename, new_path, new_file_name):
     if isMono(path + filename):    
@@ -75,7 +74,7 @@ def create_slices():
 		if filename.endswith(".png"):
 			slice_spectrogram(SPECTROGRAMS_PATH, filename, 128, SLICES_PATH)
 
-def slice_spectrogram(path, filename, desiredSize, slices_path):
+def slice_spectrogram(path, filename, desiredSize, slices_path, slice_name=None):
 	genre = filename.split("_")[0] 	#Ex. Dubstep_19.png
 
 	# Load the full spectrogram
@@ -101,7 +100,13 @@ def slice_spectrogram(path, filename, desiredSize, slices_path):
 		#Extract and save 128x128 sample
 		startPixel = i*desiredSize
 		imgTmp = img.crop((startPixel, 1, startPixel + desiredSize, desiredSize + 1))
-		imgTmp.save(slices_path + "{}/{}_{}.png".format(genre,filename[:-4],i))
+
+        if slice_name == None:
+            save_path = slices_path + "{}/{}_{}.png".format(genre,filename[:-4],i)
+        else:
+            save_path = slices_path + "\\{}_{}.png".format(slice_name, i)
+
+        imgTmp.save(save_path)
 
 def isMono(filename):
 	audiofile = eyed3.load(filename)
