@@ -51,5 +51,7 @@ if "test" in args.mode:
     print("Weights loaded successfully.")
 
     print('Evaluating accuracy...')
-    testAccuracy = model.evaluate(test_X, test_y)[0]
-    print("Test accuracy: {} ".format(testAccuracy))
+    res = model.predict(test_X)
+    evaluation = model.evaluate(test_X, test_y)
+    test_accuracy = evaluation[0]
+    print("Test accuracy: {} ".format(test_accuracy))
