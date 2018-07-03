@@ -26,21 +26,18 @@ def get_dataset(files_per_genre, genres, slice_size, validation_ratio, test_rati
 
     return load_dataset(files_per_genre, genres, slice_size, mode)
 
-def convert_slices_to_array(path, genre, slice_size):
+def convert_slices_to_array(path, slice_size):
     data = []
-    print('Creating slices for folder {}...'.format(path))
+    print('Reading slices from {}...'.format(path))
     filenames = os.listdir(path)
 
     for filename in filenames:
         imgData = get_image_data("{}\\{}".format(path, filename), slice_size)
-        label = [1. if genre == g else 0. for g in genres]
-        data.append((imgData,label))
+        data.append(imgData)
 
-    x, y = zip(*data)
-    item_x = np.array(x).reshape([-1, slice_size, slice_size, 1])
-    item_y = np.array(y)
+    item_x = np.array(data).reshape([-1, slice_size, slice_size, 1])
 
-    return item_x, item_y
+    return item_x
 
 def create_dataset_from_slices(files_per_genre, genres, slice_size, validation_ratio, test_ratio):
     data = []

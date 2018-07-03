@@ -38,7 +38,9 @@ def predict_genre(path):
 
     sp.create_spectrogram(folder_name, file_name, script_path + 'mono\\', file_name)
     sp.slice_spectrogram(SPECTROGRAMS_PATH, file_name + '.png', SLICE_SIZE, script_path + 'slices\\', 'slice')
-    x, y = convert_slices_to_array(script_path, genre, SLICE_SIZE)
+    x = convert_slices_to_array(script_path + 'slices', SLICE_SIZE)
+    
+    print('Determining genre...')
 
 if __name__ == '__main__':
     predict_genre(sys.argv[1])
