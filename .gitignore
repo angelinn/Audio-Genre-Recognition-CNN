@@ -1,13 +1,14 @@
 .ipynb_checkpoints
 __pycache__
-fma_metadata
+fma_*
 *.csv
 fma_small
 .vscode
 *.png
 slices
-spectrograms
+spectrograms*
 datasets
 checkpoint
 *.tflearn.*
 *.mp3
+*.rar
