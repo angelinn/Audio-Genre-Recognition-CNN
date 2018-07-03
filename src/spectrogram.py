@@ -18,6 +18,10 @@ def create_spectrogram(path, filename, new_path, new_file_name):
     
     pipe = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=False, cwd='D:\\Repositories\\AudioClassification\\')
     output, errors = pipe.communicate()
+
+    if output:
+        print(output)
+
     if errors:
         print(errors)
     
@@ -75,36 +79,37 @@ def create_slices():
 			slice_spectrogram(SPECTROGRAMS_PATH, filename, 128, SLICES_PATH)
 
 def slice_spectrogram(path, filename, desiredSize, slices_path, slice_name=None):
-	genre = filename.split("_")[0] 	#Ex. Dubstep_19.png
+    genre = filename.split("_")[0] 	#Ex. Dubstep_19.png
 
-	# Load the full spectrogram
-	img = Image.open(path+filename)
+    # Load the full spectrogram
+    img = Image.open(path+filename)
 
-	#Compute approximate number of 128x128 samples
-	width, height = img.size
-	nbSamples = int(width/desiredSize)
-	width - desiredSize
+    #Compute approximate number of 128x128 samples
+    width, height = img.size
+    nbSamples = int(width/desiredSize)
+    width - desiredSize
 
-	#Create path if not existing
-	slicePath = slices_path+"{}/".format(genre);
-	if not os.path.exists(os.path.dirname(slicePath)):
-		try:
-			os.makedirs(os.path.dirname(slicePath))
-		except OSError as exc: # Guard against race condition
-			if exc.errno != errno.EEXIST:
-				raise
+    #Create path if not existing
+    if slice_name == None:
+        slicePath = slices_path+"{}/".format(genre);
+        if not os.path.exists(os.path.dirname(slicePath)):
+            try:
+                os.makedirs(os.path.dirname(slicePath))
+            except OSError as exc: # Guard against race condition
+                if exc.errno != errno.EEXIST:
+                    raise
 
-	#For each sample
-	for i in range(nbSamples):
-		print("Creating slice: ", (i + 1), "/", nbSamples, "for", filename)
-		#Extract and save 128x128 sample
-		startPixel = i*desiredSize
-		imgTmp = img.crop((startPixel, 1, startPixel + desiredSize, desiredSize + 1))
+    #For each sample
+    for i in range(nbSamples):
+        print("Creating slice: ", (i + 1), "/", nbSamples, "for", filename)
+        # Extract and save 128x128 sample
+        startPixel = i*desiredSize
+        imgTmp = img.crop((startPixel, 1, startPixel + desiredSize, desiredSize + 1))
 
         if slice_name == None:
             save_path = slices_path + "{}/{}_{}.png".format(genre,filename[:-4],i)
         else:
-            save_path = slices_path + "\\{}_{}.png".format(slice_name, i)
+            save_path = slices_path + "{}_{}.png".format(slice_name, i)
 
         imgTmp.save(save_path)
 
