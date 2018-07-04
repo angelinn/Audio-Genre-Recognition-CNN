@@ -1,9 +1,29 @@
-# AudioClassification
-## Classifying the genre of an audio file
+# Audio Genre Recognition using Convolutional Neural Network
+Software that trains a convolutional neural network in order to recognize music genres using TensorFlow.
 
 
-Main points:
-### 1. Take an audio dataset described with its genres
-### 2. Build a spectrogram of each 30s cut of the song
-### 3. Split that spectrogram to several smaller ones
-### 4. Use all the split images to train a convolutional neural network
+
+## How does it work?
+Every audio file is being converted in its visual representation - **spectrogram**.
+
+A spectrogram will be very wide image, so we can slice it in smaller ones to retriieve more samples. I am slicing it in 128x128 images.
+
+Then image recognition on these slices is performed.
+The audio processing is done by **sox** software.
+
+## Recognition
+The recognition is performed in the file **prediction.py**.
+* Receive path to audio file as user input
+* Convert the song to mono (single channel)
+* Convert the song to a single spectrogram
+* Slice the spectrogram into 128x128 pieces
+* Load the pieces and pass them to the already trained model
+* Whichever genre gets the most votes is the winner
+
+## Tools
+* sox
+
+## Libraries
+* tensorflow
+* tflearn
+* eyed3 - for audio tag processing
