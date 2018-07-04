@@ -4,14 +4,17 @@ import os
 from PIL import Image
 
 SOX_PATH = 'D:\\Program Files (x86)\\sox-14-4-2\\sox'
-AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\fma_medium\\'
+AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\songs\\'
 NEW_AUDIO_DIR = 'D:\\Repositories\\AudioClassification\\mono\\'
 SPECTROGRAMS_PATH = 'spectrograms\\'
 SLICES_PATH = 'slices\\'
 GENRES = ['Electronic', 'Folk', 'Hip-Hop', 'Jazz', 'Pop', 'Punk', 'Rock']
 
 def create_spectrogram(path, filename, new_path, new_file_name):
-    if isMono(path + filename):    
+    mono = isMono(path + filename)
+    if mono == None:
+        return
+    if mono:
         command = "xcopy /y \"{}{}\" \"{}{}\"".format(path, filename, new_path, filename)
     else:
         command = "\"{}\" \"{}{}\" \"{}{}\" remix 1,2".format(SOX_PATH, path, filename, new_path, filename)
@@ -37,7 +40,8 @@ def create_spectrogram(path, filename, new_path, new_file_name):
 def getGenre(filename):
     audiofile = eyed3.load(filename)
     #No genre
-    if not audiofile.tag.genre:
+
+    if not audiofile or not audiofile.tag.genre:
         return 'None'
     else:
         return audiofile.tag.genre.name
@@ -63,9 +67,9 @@ def create_all_spectrograms(path):
     for index,filename in enumerate(files):
         print("Creating spectrogram for file {}/{}...".format(index+1,nbFiles))
         fileGenre = getGenre(path + filename)
-        if fileGenre not in GENRES:
-            print("Genre is {}. Skipping...".format(fileGenre))
-            continue
+        # if fileGenre not in GENRES:
+        #     print("Genre is {}. Skipping...".format(fileGenre))
+        #     continue
 
         genresID[fileGenre] = genresID[fileGenre] + 1 if fileGenre in genresID else 1
         fileID = genresID[fileGenre]
@@ -114,8 +118,11 @@ def slice_spectrogram(path, filename, desiredSize, slices_path, slice_name=None)
         imgTmp.save(save_path)
 
 def isMono(filename):
-	audiofile = eyed3.load(filename)
-	return audiofile.info.mode == 'Mono'
+    audiofile = eyed3.load(filename)
+    if not audiofile:
+        return None
+
+    return audiofile.info.mode == 'Mono'
 
 if __name__ == '__main__':
     directories = next(os.walk(AUDIO_DIR))[1]
