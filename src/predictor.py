@@ -61,8 +61,12 @@ def predict_genre(path, model):
 
     print('Voting...')
     results = []
+    # for slice in prediction:
+
     for slice in prediction:
-        results.append((np.argmax(slice), np.max(slice)))
+        conf = np.max(slice)
+        if conf > 0.5:        
+            results.append((np.argmax(slice), conf))
 
     votes, confidence = zip(*results)
     
@@ -74,8 +78,9 @@ def predict_genre(path, model):
         confidences.append(sum([confidence[i] for vote in votes if vote == i]) / bincount[i])
         
     chosen = np.argmax(bincount)
+    frequency = np.max(bincount) / sum(bincount)
     genre = GENRES[chosen]
-    print('I think the genre is {} and I\'m {} percent confident.'.format(genre, confidence[chosen]))
+    print('I think the genre is {} and I\'m {:.2f} percent confident.'.format(genre, frequency))
 
 def prompt_for_path(model):
     while True:
