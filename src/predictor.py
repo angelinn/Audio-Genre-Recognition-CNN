@@ -72,11 +72,7 @@ def predict_genre(path, model):
     
     bincount = np.bincount(votes)
     print(bincount)
-
-    confidences = []
-    for i in range(len(bincount)):
-        confidences.append(sum([confidence[i] for vote in votes if vote == i]) / bincount[i])
-        
+    
     chosen = np.argmax(bincount)
     frequency = np.max(bincount) / sum(bincount)
     genre = GENRES[chosen]
