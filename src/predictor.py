@@ -25,36 +25,36 @@ def create_folders():
         
     if not os.path.exists(SLICES_PATH):
         os.makedirs(SLICES_PATH)
-    else:
-        print('Cleaning old data...')
-        for file in os.listdir(SLICES_PATH):
-            os.remove(SLICES_PATH + file)
         
     if not os.path.exists(SPECTROGRAMS_TEST_PATH):
         os.makedirs(SPECTROGRAMS_TEST_PATH)
 
+def init():
+    create_folders()
+    print('Loading model...')
+    model = create_model(SLICE_SIZE, len(GENRES))    
+    model.load(MODEL_FILE_NAME)
+    print('Model loaded.')
 
-def predict_genre(path):
+    return model
+
+def predict_genre(path, model):
     print("Reading music file {}...".format(path))
-
+    
     folder_name = os.path.dirname(path) + "\\"
     file_name = os.path.basename(path)
 
-    create_folders()
-
-    if not os.path.exists(folder_name + file_name):
-        print("File {} does not exist.".format(path + filename))
+    if not folder_name or not file_name or not os.path.exists(folder_name + file_name):
+        print("File {} does not exist.".format(path))
         return
+
+    for file in os.listdir(SLICES_PATH):
+        os.remove(SLICES_PATH + file)
 
     print('Creating spectrogram...')
     sp.create_spectrogram(folder_name, file_name, MONO_PATH, file_name)
     sp.slice_spectrogram(SPECTROGRAMS_PATH, file_name + '.png', SLICE_SIZE, SLICES_PATH, 'slice')
     x = convert_slices_to_array(SLICES_PATH, SLICE_SIZE)
-
-    print('Loading model...')
-    model = create_model(128, len(GENRES))    
-    model.load(MODEL_FILE_NAME)
-    print('Model loaded.')
 
     print('Predicting genre...')
     prediction = model.predict(x)
@@ -69,5 +69,23 @@ def predict_genre(path):
     genre = GENRES[np.argmax(bincount)]
     print('I think the genre is {}.'.format(genre))
 
+def prompt_for_path(model):
+    while True:
+        path = input('Enter a song path to predict its genre:\n')
+        predict_genre(path, model)
+
+        go = input('Continue? (y/n)')
+        if go == 'n':
+            break
+
+def main():
+    model = init()
+
+    if len(sys.argv) > 1:
+        predict_genre(sys.argv[1], model)
+    else:
+        prompt_for_path(model)
+
 if __name__ == '__main__':
-    predict_genre(sys.argv[1])
+    main()
+
