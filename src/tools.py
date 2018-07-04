@@ -32,7 +32,7 @@ def convert_slices_to_array(path, slice_size):
     filenames = os.listdir(path)
 
     for filename in filenames:
-        imgData = get_image_data("{}\\{}".format(path, filename), slice_size)
+        imgData = get_image_data(path + filename, slice_size)
         data.append(imgData)
 
     item_x = np.array(data).reshape([-1, slice_size, slice_size, 1])
