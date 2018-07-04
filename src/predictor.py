@@ -2,12 +2,15 @@ import os
 
 import sys
 import spectrogram as sp
+import numpy as np
 
 from train import create_model
 from tools import convert_slices_to_array
 from spectrogram import SPECTROGRAMS_PATH
+from tools import SCRIPTS_DIRECTORY
 
 SLICE_SIZE = 128
+MODEL_FILE_NAME = os.path.join(SCRIPTS_DIRECTORY, '../model/musicDNN.tflearn')
 
 def create_folders(cwd):
     print('Creating folders...')
@@ -40,8 +43,16 @@ def predict_genre(path):
     sp.slice_spectrogram(SPECTROGRAMS_PATH, file_name + '.png', SLICE_SIZE, script_path + 'slices\\', 'slice')
     x = convert_slices_to_array(script_path + 'slices', SLICE_SIZE)
 
-    model = create_model(128, 7)
+    model = create_model(128, 4)    
+    model.load(MODEL_FILE_NAME)
+
     prediction = model.predict(x)
+
+    final = []
+    for res in prediction:
+        final.append(np.argmax(res))
+
+    print(np.bincount(final))
     print('Determining genre...')
 
 if __name__ == '__main__':
