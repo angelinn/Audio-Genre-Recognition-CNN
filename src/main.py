@@ -32,10 +32,12 @@ print('Model created')
 
 if "train" in args.mode:
     train_X, train_y, validation_X, validation_y = get_dataset(files_per_genre, genres, SLICE_SIZE, validation_ratio, test_ratio, mode="train")
-    run_id = "MusicGenres - "+str(128)+" "+''.join(random.SystemRandom().choice(string.ascii_uppercase) for _ in range(10))
+    run_id = "MusicGenres - 128" + ''.join(random.SystemRandom().choice(string.ascii_uppercase) for _ in range(10))
 
     print('Training model...')
-    model.fit(train_X, train_y, n_epoch=12, batch_size=128, shuffle=True, validation_set=(validation_X, validation_y), snapshot_step=100, show_metric=True, run_id=run_id)
+    model.fit(train_X, train_y, n_epoch=12, batch_size=128, shuffle=True,
+        validation_set=(validation_X, validation_y), snapshot_step=100, show_metric=True, run_id=run_id)
+        
     print("Model trained.")
 
     print("Saving weights...")
@@ -55,3 +57,4 @@ if "test" in args.mode:
     evaluation = model.evaluate(test_X, test_y)
     test_accuracy = evaluation[0]
     print("Test accuracy: {} ".format(test_accuracy))
+
