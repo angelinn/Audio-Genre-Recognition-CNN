@@ -74,7 +74,7 @@ def create_all_spectrograms(path):
         genresID[fileGenre] = genresID[fileGenre] + 1 if fileGenre in genresID else 1
         fileID = genresID[fileGenre]
 
-        newFilename = fileGenre +"_"+str(fileID)
+        newFilename = fileGenre + "_" + str(fileID) + "_" + filename
         create_spectrogram(path, filename, NEW_AUDIO_DIR, newFilename)
 
 def create_slices():
