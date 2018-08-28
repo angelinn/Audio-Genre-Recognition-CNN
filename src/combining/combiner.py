@@ -6,12 +6,14 @@
 
 import os
 import sys
+import numpy as np
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 import spectrogram as sp
 from tools import SCRIPTS_DIRECTORY
 from tools import convert_slices_to_array
+from train import create_model
 
 from spectrogram import SPECTROGRAMS_PATH
 
@@ -34,7 +36,7 @@ def init():
 def get_samples():
     samples = []
 
-    for file in os.listdir(SAMPLES_DIR):
+    for file in os.listdir(SAMPLES_DIR)[:2]: 
         for slice in os.listdir(SLICES_PATH):
             os.remove(SLICES_PATH + slice)
 
@@ -50,18 +52,19 @@ def get_samples():
         
 def recognize_samples(samples):
     print('Loading model...')
-    model = create_model(SLICE_SIZE, len(GENRES))    
+    model = create_model(SLICE_SIZE, 4)    
     model.load(MODEL_FILE_NAME)
     print('Model loaded.')
 
     predictions = []
     for sample in samples:
-        prediction = model.predict(x)
+        prediction = model.predict(sample)
         predictions.append(sample) 
 
     return predictions
 
 def vote(prediction):
+    results = []
     for slice in prediction:
         conf = np.max(slice)
         if conf > 0.5:        
@@ -81,7 +84,7 @@ def get_second_best_guess(predictions, genre):
         votes = vote(prediction)
         target = sorted(votes)[-2]
         target_index = np.argmax(target)
-        targets.append(tar)
+        targets.append(target_index)
 
     return targets
 
@@ -89,12 +92,12 @@ def get_second_best_guess(predictions, genre):
 
 def isolate_slices(genre):
     samples = get_samples()
-    predictions = recognize_samples([s[1] for sample in samples])
+    predictions = recognize_samples([sample[1] for sample in samples])
 
     filtered_samples = []
-    second_guesses = get_second_best_guess(predictions)
-    for i, second in second_guesses:
-        if second == genre:
+    second_guesses = get_second_best_guess(predictions, genre)
+    for i, second in enumerate(second_guesses):
+        if str(second) == str(genre):
             filtered_samples.append(samples[i])
 
     return filtered_samples
@@ -102,9 +105,9 @@ def isolate_slices(genre):
 def main():
     init()
 
-    genre = 'Punk'
+    genre = '0'
     slices = isolate_slices(genre)
-    print(slices)
+    print(slices[0])
 
 if __name__ == '__main__':
     main()
