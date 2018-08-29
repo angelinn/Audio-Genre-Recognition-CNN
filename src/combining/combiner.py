@@ -6,16 +6,20 @@
 
 import os
 import sys
+import pickle
 import numpy as np
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 
 import spectrogram as sp
+from itertools import product
 from tools import SCRIPTS_DIRECTORY
 from tools import convert_slices_to_array
 from train import create_model
 
 from spectrogram import SPECTROGRAMS_PATH
+
+from audio_processor import create_audio
 
 SCRIPT_PATH = os.path.realpath(__file__)
 SCRIPT_PATH = os.path.dirname(SCRIPT_PATH) + "\\"
@@ -36,7 +40,7 @@ def init():
 def get_samples():
     samples = []
 
-    for file in os.listdir(SAMPLES_DIR)[:2]: 
+    for file in os.listdir(SAMPLES_DIR): 
         for slice in os.listdir(SLICES_PATH):
             os.remove(SLICES_PATH + slice)
 
@@ -63,28 +67,17 @@ def recognize_samples(samples):
 
     return predictions
 
-def vote(prediction):
-    results = []
-    for slice in prediction:
-        conf = np.max(slice)
-        if conf > 0.5:        
-            results.append((np.argmax(slice), conf))
-
-    votes, confidence = zip(*results)
-    
-    bincount = np.bincount(votes)
-    print(bincount)
-    
-    return bincount
-
-def get_second_best_guess(predictions, genre):
+def get_slices_with_genre(predictions, genre):
     targets = []
 
-    for prediction in predictions:
-        votes = vote(prediction)
-        target = sorted(votes)[-2]
-        target_index = list(votes).index(target)
-        targets.append(target_index)
+    for predicted_slices in predictions:
+        current = []
+        for i, slice in enumerate(predicted_slices):    
+            max_index = np.argmax(slice)
+
+            if str(max_index) == str(genre):
+                current.append(i)
+        targets.append(current)
 
     return targets
 
@@ -95,37 +88,25 @@ def isolate_slices(genre):
     predictions = recognize_samples([sample[1] for sample in samples])
 
     filtered_samples = []
-    second_guesses = get_second_best_guess(predictions, genre)
-    for i, second in enumerate(second_guesses):
-        if str(second) == str(genre):
-            filtered_samples.append((samples[i][0], predictions[i]))
+    slices_with_genre = get_slices_with_genre(predictions, genre)
 
-    return filtered_samples
-
-def filter_slices(slices, genre):
-    target_slices = []
-    for i, slice in enumerate(slices):
-        second_best = sorted(slice)[-2]
-        index = list(slice).index(second_best)
-        if str(index) == str(genre):
-            target_slices.append(i)
-
-    return target_slices
+    files_names = [s[0] for s in samples]
+    return zip(files_names, slices_with_genre)
 
 def main():
     init()
 
-    genre = '0'
-    slices = isolate_slices(genre) 
-
-    new_genre = []
-    i = 0
+    genre = '2'
+    slices = isolate_slices(genre)
+    slices = list(slices)
+        
     for slice in slices:
-        target_slices = filter_slices(slice[1], genre)
-        new_genre.append(target_slices)
-        i += len(target_slices)
+        print("Found {} target slices for {}.".format(len(slice[1]), slice[0]))
 
-    print("Found {} target slices.".format(i))
+    with open(SCRIPT_PATH + 'slices.bin', 'wb') as slfile:
+        pickle.dump(slices, slfile)
+
+    create_audio(slices)
 
 if __name__ == '__main__':
     main()
