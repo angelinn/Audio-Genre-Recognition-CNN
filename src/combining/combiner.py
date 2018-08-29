@@ -36,7 +36,7 @@ def init():
 def get_samples():
     samples = []
 
-    for file in os.listdir(SAMPLES_DIR)[:2]: 
+    for file in os.listdir(SAMPLES_DIR)[:10]: 
         for slice in os.listdir(SLICES_PATH):
             os.remove(SLICES_PATH + slice)
 
@@ -59,7 +59,7 @@ def recognize_samples(samples):
     predictions = []
     for sample in samples:
         prediction = model.predict(sample)
-        predictions.append(sample) 
+        predictions.append(prediction) 
 
     return predictions
 
@@ -83,7 +83,7 @@ def get_second_best_guess(predictions, genre):
     for prediction in predictions:
         votes = vote(prediction)
         target = sorted(votes)[-2]
-        target_index = np.argmax(target)
+        target_index = list(votes).index(target)
         targets.append(target_index)
 
     return targets
