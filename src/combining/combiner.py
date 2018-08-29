@@ -36,7 +36,7 @@ def init():
 def get_samples():
     samples = []
 
-    for file in os.listdir(SAMPLES_DIR)[:10]: 
+    for file in os.listdir(SAMPLES_DIR)[:2]: 
         for slice in os.listdir(SLICES_PATH):
             os.remove(SLICES_PATH + slice)
 
@@ -98,16 +98,34 @@ def isolate_slices(genre):
     second_guesses = get_second_best_guess(predictions, genre)
     for i, second in enumerate(second_guesses):
         if str(second) == str(genre):
-            filtered_samples.append(samples[i])
+            filtered_samples.append((samples[i][0], predictions[i]))
 
     return filtered_samples
+
+def filter_slices(slices, genre):
+    target_slices = []
+    for i, slice in enumerate(slices):
+        second_best = sorted(slice)[-2]
+        index = list(slice).index(second_best)
+        if str(index) == str(genre):
+            target_slices.append(i)
+
+    return target_slices
 
 def main():
     init()
 
     genre = '0'
-    slices = isolate_slices(genre)
-    print(slices[0])
+    slices = isolate_slices(genre) 
+
+    new_genre = []
+    i = 0
+    for slice in slices:
+        target_slices = filter_slices(slice[1], genre)
+        new_genre.append(target_slices)
+        i += len(target_slices)
+
+    print("Found {} target slices.".format(i))
 
 if __name__ == '__main__':
     main()
