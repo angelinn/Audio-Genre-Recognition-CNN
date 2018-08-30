@@ -44,13 +44,16 @@ def get_samples():
         for slice in os.listdir(SLICES_PATH):
             os.remove(SLICES_PATH + slice)
 
-        print('Creating spectrogram...')
+        try:
+            print('Creating spectrogram...')
 
-        sp.create_spectrogram(SAMPLES_DIR, file, MONO_PATH, file)
-        sp.slice_spectrogram(SPECTROGRAMS_PATH, file + '.png', SLICE_SIZE, SLICES_PATH, 'slice')
+            sp.create_spectrogram(SAMPLES_DIR, file, MONO_PATH, file)
+            sp.slice_spectrogram(SPECTROGRAMS_PATH, file + '.png', SLICE_SIZE, SLICES_PATH, 'slice')
 
-        array = convert_slices_to_array(SLICES_PATH, SLICE_SIZE)
-        samples.append((SAMPLES_DIR + file, array))
+            array = convert_slices_to_array(SLICES_PATH, SLICE_SIZE)
+            samples.append((SAMPLES_DIR + file, array))
+        except FileNotFoundError:
+            continue
 
     return samples
         
@@ -96,7 +99,7 @@ def isolate_slices(genre):
 def main():
     init()
 
-    genre = '2'
+    genre = '3'
     slices = isolate_slices(genre)
     slices = list(slices)
         
